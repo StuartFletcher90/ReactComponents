@@ -2,10 +2,17 @@ import React, { Component } from 'react';
 import classes from "./App.css";
 import Person from '../Components/Persons/Person/Person';
 import Persons from '../Components/Persons/Persons';
+import Cockpit from '../Components/Cockpit/Cockpit';
 
 
 //CLASS APP COMPONENT
 class App extends Component {
+  constructor(props) {
+    super(props);
+    console.log('[app.js] constructor')
+
+    }
+
   state = {
     persons: [
       {id: '1', name: 'Stu', age: 29 },
@@ -14,8 +21,16 @@ class App extends Component {
     ],
     showPersons: false
   }
-  
 
+  static getDerivedStateFromProps(props, state) {
+    console.log('[App.js] getDerivedStateFromProps', props);
+    return state;
+  }
+
+  componentDidMount() {
+    console.log('[App.js] componentDidMount');
+  }
+  
   nameChangedHandler = (event, id) => {
     const personIndex = this.state.persons.findIndex(p => {
       return p.id === id;
@@ -46,42 +61,29 @@ class App extends Component {
   }
 
   render() {
+    console.log('[App.js] render')
     
-
     let persons = null;
-    let btnClass = '';
 
     if (this.state.showPersons) {
       persons = (
-        <div>
-        <Persons persons={this.state.persons} clicked={this.deletePersonsHandler}
+      <Persons 
+        persons={this.state.persons} 
+        clicked={this.deletePersonsHandler}
         changed={this.nameChangedHandler}/>
-      </div>
       );
-    
-      btnClass = classes.Red;
     }
-
-
-    let assignedClasses = [];
-    if (this.state.persons.length <=2) {
-      assignedClasses.push(classes.red); // classes = ['red']
-    }
-    if (this.state.persons.length <=1) {
-      assignedClasses.push(classes.bold); //classes are red and now also bold
-    }
-
 
     return (
-
       <div className={classes.App}>
-        <h1 className={classes.Heading}>Hello, I'm a React App!</h1>
-        <p className={assignedClasses.join(' ')}>Created by Stu</p>
-        <button className={btnClass} onClick={this.togglePersonsHandler}>Toggle Persons</button>
-      {persons}
+        <Cockpit 
+        title={this.props.appTitle}
+        showPersons={this.state.showPersons} 
+        persons={this.state.persons}
+        clicked={this.togglePersonsHandler} />
+        {persons}
       </div>
     )
   }
 };
-// replaced every this.State with personsState as we're using hooks with functional components
 export default App;
