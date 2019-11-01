@@ -3,6 +3,8 @@ import classes from "./App.css";
 import Person from '../Components/Persons/Person/Person';
 import Persons from '../Components/Persons/Persons';
 import Cockpit from '../Components/Cockpit/Cockpit';
+import withClass from '../hoc/withClass';
+import Aux from '../hoc/Aux';
 
 
 //CLASS APP COMPONENT
@@ -20,17 +22,16 @@ class App extends Component {
       {id: '3', name: 'Mathew', age: 27}
     ],
     showPersons: false,
-    showCockpit: true
+    showCockpit: true,
+    changeCounter: 0,
+    authenticated: false
   }
-
+// life cycle hooks
   static getDerivedStateFromProps(props, state) {
     console.log('[App.js] getDerivedStateFromProps', props);
     return state;
   }
 
-  // componentWillMount() {
-  //   console.log('[App.js] componentWillMount');
-  // }
   componentDidMount() {
     console.log('[App.js] componentDidMount');
   }
@@ -43,6 +44,10 @@ class App extends Component {
   componentDidUpdate() {
     console.log('[App.js componentDidUpdate]');
   }
+
+
+// end of life cycle hooks
+
 
   nameChangedHandler = (event, id) => {
     const personIndex = this.state.persons.findIndex(p => {
@@ -58,8 +63,12 @@ class App extends Component {
     persons[personIndex] = person;
     
 
-    this.setState({persons: persons});
-  }
+    this.setState((prevState, props) => {
+      return {persons: persons, 
+      changeCounter: prevState.changeCounter +1
+    };
+  });
+};
 
   deletePersonsHandler = (personIndex) => {
     // const persons = this.state.persons.slice();
@@ -73,6 +82,9 @@ class App extends Component {
     this.setState({showPersons: !doesShow});
   }
 
+  loginHandler = () => {
+    this.setState({authenticated: true});
+  }
   render() {
     console.log('[App.js] render')
     
@@ -83,22 +95,28 @@ class App extends Component {
       <Persons 
         persons={this.state.persons} 
         clicked={this.deletePersonsHandler}
-        changed={this.nameChangedHandler}/>
+        changed={this.nameChangedHandler}
+        isAuthenticated={this.state.authenticated}
+        />
       );
     }
 
     return (
-      <div className={classes.App}>
-        <button onClick={() => {this.setState({showCockpit: false });
+      <Aux>
+      <button onClick={() => {this.setState({showCockpit: false });
       }}>Remove Cockpit</button>
-        {this.state.showCockpit ? <Cockpit 
+        {this.state.showCockpit ? 
+        <Cockpit 
         title={this.props.appTitle}
         showPersons={this.state.showPersons} 
-        persons={this.state.persons}
-        clicked={this.togglePersonsHandler} /> : null}
+        personsLength={this.state.persons.length}
+        clicked={this.togglePersonsHandler}
+        login={this.loginHandler}
+        />
+        : null}
         {persons}
-      </div>
+       </Aux> 
     )
   }
 };
-export default App;
+export default withClass(App, classes.App);
